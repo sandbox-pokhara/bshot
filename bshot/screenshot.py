@@ -4,7 +4,25 @@ import win32gui
 import win32ui
 
 
-def get_image_by_rect(hwnd, x, y, width, height):
+def get_offset(hwnd):
+    x, y = win32gui.ClientToScreen(hwnd, (0, 0))
+    x1, y1, _, _ = win32gui.GetWindowRect(hwnd)
+    return x - x1, y - y1
+
+
+def get_image_by_rect(hwnd, x, y, width=None, height=None):
+    # if width/height is None, then use the size of the client area
+    _, _, w, h = win32gui.GetClientRect(hwnd)
+    if width is None:
+        width = w
+    if height is None:
+        height = h
+
+    # add offset to x, y to match the client area
+    off_x, off_y = get_offset(hwnd)
+    x += off_x
+    y += off_y
+
     wDC = win32gui.GetWindowDC(hwnd)
     dcObj = win32ui.CreateDCFromHandle(wDC)
     cDC = dcObj.CreateCompatibleDC()
@@ -24,9 +42,5 @@ def get_image_by_rect(hwnd, x, y, width, height):
     return image
 
 
-def get_image(child):
-    c_x, c_y, c_x1, c_y1 = win32gui.GetWindowRect(child)
-    w, h = c_x1 - c_x, c_y1 - c_y
-    if c_x < 0 or c_y < 0 or c_x1 < 0 or c_y1 < 0:
-        return None
-    return get_image_by_rect(child, 0, 0, w, h)
+def get_image(hwnd):
+    return get_image_by_rect(hwnd, 0, 0)

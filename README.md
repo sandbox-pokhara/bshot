@@ -18,14 +18,14 @@ from bshot.screenshot import get_image
 
 hwnd = win32gui.FindWindow(None, "Untitled - Notepad")
 img = get_image(hwnd)
-cv2.imshow("", img)
+cv2.imshow("bshot", img)
 cv2.waitKey(0)
 ```
 
 ## Benchmark
 
 The speed of the capture depends on the size of the window that is being captured.
-It can caputre 220x160 window with 2000+ fps.
+It can caputre 220x160 window with 2400+ fps.
 
 ```python
 import time
@@ -46,4 +46,4 @@ print("fps =", count)
 
 ## Limitations
 
-- `get_image` does not properly crop the contents of window
+- The screenshot module uses GetClientRect which can crop some portion of the window contents.
