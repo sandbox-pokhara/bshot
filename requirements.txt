@@ -1,0 +1,4 @@
+build==0.9.0
+numpy==1.25.2
+pywin32==306
+twine==4.0.2
