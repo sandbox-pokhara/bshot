@@ -22,6 +22,28 @@ cv2.imshow("", img)
 cv2.waitKey(0)
 ```
 
+## Benchmark
+
+The speed of the capture depends on the size of the window that is being captured.
+It can caputre 220x160 window with 2000+ fps.
+
+```python
+import time
+
+import win32gui
+
+from bshot.screenshot import get_image
+
+hwnd = win32gui.FindWindow(None, "Untitled - Notepad")
+
+start = time.time()
+count = 0
+while time.time() - start < 1:
+    get_image(hwnd)
+    count += 1
+print("fps =", count)
+```
+
 ## Limitations
 
 - `get_image` does not properly crop the contents of window
