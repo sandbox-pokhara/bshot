@@ -40,7 +40,7 @@ hwnd = win32gui.FindWindow(None, "Untitled - Notepad")
 start = time.time()
 count = 0
 while time.time() - start < 1:
-    get_image(hwnd)
+    get_image(hwnd, method="srcopy")
     count += 1
 print("fps =", count)
 ```

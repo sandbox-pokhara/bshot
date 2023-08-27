@@ -5,6 +5,8 @@ import win32con
 import win32gui
 import win32ui
 
+from bshot.exceptions import InvalidMethodException
+
 
 def get_offset(hwnd):
     x, y = win32gui.ClientToScreen(hwnd, (0, 0))
@@ -16,7 +18,7 @@ def get_image_by_rect(
     hwnd,
     x,
     y,
-    method,
+    method="windll",
     width=None,
     height=None,
 ):
@@ -46,9 +48,11 @@ def get_image_by_rect(
     if method == "windll":
         # windll method
         windll.user32.PrintWindow(hwnd, cDC.GetSafeHdc(), 2)
-    if method == "srcopy":
+    elif method == "srcopy":
         # srcopy method
         cDC.BitBlt((0, 0), (width, height), dcObj, (x, y), win32con.SRCCOPY)
+    else:
+        raise InvalidMethodException(f"Method {method} is not valid.")
 
     bmInfo = dataBitMap.GetInfo()
     image = np.frombuffer(dataBitMap.GetBitmapBits(True), dtype=np.uint8)
