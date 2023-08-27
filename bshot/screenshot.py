@@ -1,6 +1,7 @@
 from ctypes import windll
 
 import numpy as np
+import win32con
 import win32gui
 import win32ui
 
@@ -11,7 +12,14 @@ def get_offset(hwnd):
     return x - x1, y - y1
 
 
-def get_image_by_rect(hwnd, x, y, width=None, height=None):
+def get_image_by_rect(
+    hwnd,
+    x,
+    y,
+    method,
+    width=None,
+    height=None,
+):
     # if width/height is None, then use the size of the client area
     _, _, w, h = win32gui.GetClientRect(hwnd)
     if width is None:
@@ -25,7 +33,6 @@ def get_image_by_rect(hwnd, x, y, width=None, height=None):
     y += off_y
 
     scaleFactor = windll.shcore.GetScaleFactorForDevice(0) / 100
-
     width = int(width * scaleFactor)
     height = int(height * scaleFactor)
 
@@ -36,12 +43,19 @@ def get_image_by_rect(hwnd, x, y, width=None, height=None):
     dataBitMap.CreateCompatibleBitmap(dcObj, width, height)
     cDC.SelectObject(dataBitMap)
 
-    windll.user32.PrintWindow(hwnd, cDC.GetSafeHdc(), 2)
+    if method == "windll":
+        # windll method
+        windll.user32.PrintWindow(hwnd, cDC.GetSafeHdc(), 2)
+    if method == "srcopy":
+        # srcopy method
+        cDC.BitBlt((0, 0), (width, height), dcObj, (x, y), win32con.SRCCOPY)
+
     bmInfo = dataBitMap.GetInfo()
     image = np.frombuffer(dataBitMap.GetBitmapBits(True), dtype=np.uint8)
     image = image.reshape(bmInfo["bmHeight"], bmInfo["bmWidth"], 4)
     # bitmap has 4 channels like: BGRA. Discard Alpha
     image = image[:, :, :3]
+
     win32gui.DeleteObject(dataBitMap.GetHandle())
     cDC.DeleteDC()
     dcObj.DeleteDC()
@@ -51,5 +65,5 @@ def get_image_by_rect(hwnd, x, y, width=None, height=None):
     return image
 
 
-def get_image(hwnd):
-    return get_image_by_rect(hwnd, 0, 0)
+def get_image(hwnd, method="windll"):
+    return get_image_by_rect(hwnd, 0, 0, method)
