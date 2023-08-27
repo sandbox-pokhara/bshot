@@ -18,6 +18,7 @@ from bshot.screenshot import get_image
 
 hwnd = win32gui.FindWindow(None, "Untitled - Notepad")
 img = get_image(hwnd)
+cv2.namedWindow("bshot", cv2.WINDOW_NORMAL)
 cv2.imshow("bshot", img)
 cv2.waitKey(0)
 ```

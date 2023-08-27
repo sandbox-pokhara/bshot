@@ -1,5 +1,6 @@
+from ctypes import windll
+
 import numpy as np
-import win32con
 import win32gui
 import win32ui
 
@@ -23,22 +24,30 @@ def get_image_by_rect(hwnd, x, y, width=None, height=None):
     x += off_x
     y += off_y
 
+    scaleFactor = windll.shcore.GetScaleFactorForDevice(0) / 100
+
+    width = int(width * scaleFactor)
+    height = int(height * scaleFactor)
+
     wDC = win32gui.GetWindowDC(hwnd)
     dcObj = win32ui.CreateDCFromHandle(wDC)
     cDC = dcObj.CreateCompatibleDC()
     dataBitMap = win32ui.CreateBitmap()
     dataBitMap.CreateCompatibleBitmap(dcObj, width, height)
     cDC.SelectObject(dataBitMap)
-    cDC.BitBlt((0, 0), (width, height), dcObj, (x, y), win32con.SRCCOPY)
+
+    windll.user32.PrintWindow(hwnd, cDC.GetSafeHdc(), 2)
     bmInfo = dataBitMap.GetInfo()
     image = np.frombuffer(dataBitMap.GetBitmapBits(True), dtype=np.uint8)
-    dcObj.DeleteDC()
-    cDC.DeleteDC()
-    win32gui.ReleaseDC(hwnd, wDC)
-    win32gui.DeleteObject(dataBitMap.GetHandle())
     image = image.reshape(bmInfo["bmHeight"], bmInfo["bmWidth"], 4)
     # bitmap has 4 channels like: BGRA. Discard Alpha
     image = image[:, :, :3]
+    win32gui.DeleteObject(dataBitMap.GetHandle())
+    cDC.DeleteDC()
+    dcObj.DeleteDC()
+    win32gui.ReleaseDC(hwnd, wDC)
+
+    # Now you have the image data in the NumPy array format
     return image
 
 
