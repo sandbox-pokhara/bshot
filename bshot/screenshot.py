@@ -1,5 +1,6 @@
 import typing
 from ctypes import windll
+from typing import Any
 from typing import Literal
 from typing import Optional
 
@@ -7,6 +8,9 @@ import numpy as np
 import win32con
 import win32gui
 import win32ui
+from numpy import dtype
+from numpy import ndarray
+from numpy import uint8
 
 from bshot.exceptions import InvalidMethodException
 
@@ -24,7 +28,7 @@ def get_image_by_rect(
     method: Literal["srccopy", "windll"] = "srccopy",
     width: Optional[int] = None,
     height: Optional[int] = None,
-):
+) -> ndarray[Any, dtype[uint8]]:
     # if width/height is None, then use the size of the client area
     _, _, w, h = win32gui.GetClientRect(hwnd)
     if width is None:
@@ -75,5 +79,7 @@ def get_image_by_rect(
     return image
 
 
-def get_image(hwnd: int, method: Literal["srccopy", "windll"] = "srccopy"):
+def get_image(
+    hwnd: int, method: Literal["srccopy", "windll"] = "srccopy"
+) -> ndarray[Any, dtype[uint8]]:
     return get_image_by_rect(hwnd, 0, 0, method)
