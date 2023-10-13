@@ -17,7 +17,7 @@ import win32gui
 from bshot.screenshot import get_image
 
 hwnd = win32gui.FindWindow(None, "Untitled - Notepad")
-img = get_image(hwnd, method="windll") # windll and srcopy methods
+img = get_image(hwnd, method="srccopy") # windll and srccopy methods
 cv2.namedWindow("bshot", cv2.WINDOW_NORMAL)
 cv2.imshow("bshot", img)
 cv2.waitKey(0)
@@ -40,7 +40,7 @@ hwnd = win32gui.FindWindow(None, "Untitled - Notepad")
 start = time.time()
 count = 0
 while time.time() - start < 1:
-    get_image(hwnd, method="srcopy")
+    get_image(hwnd, method="srccopy")
     count += 1
 print("fps =", count)
 ```
